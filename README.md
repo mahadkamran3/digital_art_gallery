@@ -16,8 +16,8 @@ A cross-platform Flutter art gallery app.
 
 1. **Clone the repository:**
    ```sh
-   git clone <your-repo-url>
-   cd mad_project
+   git clone https://github.com/mahadkamran3/digital_art_gallery
+   cd digital_art_gallery
    ```
 
 2. **Install dependencies:**
