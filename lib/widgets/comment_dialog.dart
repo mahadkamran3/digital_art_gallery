@@ -220,7 +220,6 @@ class _CommentDialogState extends State<CommentDialog> {
       context.read<InteractionsProvider>().addComment(widget.artworkId, text);
       _commentController.clear();
 
-      // Scroll to bottom after adding comment
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
