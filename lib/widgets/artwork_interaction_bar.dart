@@ -24,7 +24,6 @@ class ArtworkInteractionBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: Row(
             children: [
-              //like button...
               InkWell(
                 onTap: () => interactionsProvider.toggleLike(artwork.id),
                 borderRadius: BorderRadius.circular(20),
