@@ -68,7 +68,6 @@ class InteractionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Persistence methods
   Future<void> loadData() async {
     await _loadLikes();
     await _loadComments();
