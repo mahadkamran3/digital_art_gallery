@@ -142,7 +142,7 @@ class ArtGalleryApp extends StatelessWidget {
 
 // Toggle this to `true` during development to open the app directly
 // to the main navigation (useful for testing the bottom bar / explore tab).
-const bool kDevOpenMain = true;
+const bool kDevOpenMain = false;
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
