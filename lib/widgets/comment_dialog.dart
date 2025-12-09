@@ -31,6 +31,7 @@ class _CommentDialogState extends State<CommentDialog> {
         width: MediaQuery.of(context).size.width * 0.9,
         child: Column(
           children: [
+            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -54,6 +55,7 @@ class _CommentDialogState extends State<CommentDialog> {
               ),
             ),
 
+            // Comments list
             Expanded(
               child: Consumer<InteractionsProvider>(
                 builder: (context, provider, child) {
@@ -80,6 +82,7 @@ class _CommentDialogState extends State<CommentDialog> {
               ),
             ),
 
+            // Comment input
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -220,6 +223,7 @@ class _CommentDialogState extends State<CommentDialog> {
       context.read<InteractionsProvider>().addComment(widget.artworkId, text);
       _commentController.clear();
 
+      // Scroll to bottom after adding comment
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(

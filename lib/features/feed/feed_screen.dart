@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:io' show File;
 import '../../providers/gallery_provider.dart';
 import '../../widgets/artwork_interaction_bar.dart';
+import '../../widgets/gradient_text.dart';
 import 'artwork_detail_screen.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _FeedScreenState extends State<FeedScreen> {
               .toList();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Art Feed'),
+        title: const GradientText(text: 'Art Work'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
@@ -52,122 +53,135 @@ class _FeedScreenState extends State<FeedScreen> {
           ),
         ),
       ),
-      body: filtered.isEmpty
-          ? Center(
-              child: Text(
-                'No artworks found.',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: filtered.length,
-              itemBuilder: (context, i) {
-                final art = filtered[i];
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header with artist info
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
-                              child: Text(
-                                art.artistName.isNotEmpty
-                                    ? art.artistName[0].toUpperCase()
-                                    : 'A',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage('assets/images/background02.jpg'),
+            fit: BoxFit.cover,
+            // dim the background image so it doesn't overpower the UI
+            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+          ),
+          // an optional subtle overlay color (keeps content readable)
+          color: Colors.white.withOpacity(0.0),
+        ),
+        child: filtered.isEmpty
+            ? Center(
+                child: Text(
+                  'No artworks found.',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: filtered.length,
+                itemBuilder: (context, i) {
+                  final art = filtered[i];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                child: Text(
+                                  art.artistName.isNotEmpty
+                                      ? art.artistName[0].toUpperCase()
+                                      : 'A',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    art.artistName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  Text(
-                                    '${art.createdAt.year}/${art.createdAt.month}/${art.createdAt.day}',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      art.artistName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                    Text(
+                                      '${art.createdAt.year}/${art.createdAt.month}/${art.createdAt.day}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                      // Artwork image
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ArtworkDetailScreen(artwork: art),
-                            ),
-                          );
-                        },
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 250,
-                          child: _buildArtworkImage(art.imagePath),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ArtworkDetailScreen(artwork: art),
+                              ),
+                            );
+                          },
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 250,
+                            child: _buildArtworkImage(art.imagePath),
+                          ),
                         ),
-                      ),
 
-                      // Interaction bar (likes, comments, share)
-                      ArtworkInteractionBar(artwork: art),
+                        ArtworkInteractionBar(artwork: art),
 
-                      // Title and description
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              art.title,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 4),
-                            if (art.description.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                art.description,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
+                                art.title,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
-                          ],
+                              const SizedBox(height: 4),
+                              if (art.description.isNotEmpty)
+                                Text(
+                                  art.description,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 

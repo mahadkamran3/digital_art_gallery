@@ -7,10 +7,15 @@ class InteractionsProvider extends ChangeNotifier {
   final Map<String, List<Comment>> _comments = {};
   final Map<String, Set<String>> _likes = {};
   final String _currentUserId = 'user_1';
-  final String _currentUserName = 'Demo User';
+  String _currentUserName = 'Demo User';
 
   String get currentUserId => _currentUserId;
   String get currentUserName => _currentUserName;
+
+  void setCurrentUserName(String name) {
+    _currentUserName = name;
+    notifyListeners();
+  }
 
   List<Comment> getCommentsForArtwork(String artworkId) {
     return _comments[artworkId] ?? [];
@@ -68,6 +73,7 @@ class InteractionsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Persistence methods
   Future<void> loadData() async {
     await _loadLikes();
     await _loadComments();

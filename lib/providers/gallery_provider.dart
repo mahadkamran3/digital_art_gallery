@@ -23,4 +23,19 @@ class GalleryProvider extends ChangeNotifier {
     _user = user;
     notifyListeners();
   }
+
+  /// Update an existing artwork. Matches by `id`.
+  void updateArtwork(Artwork updated) {
+    final idx = _artworks.indexWhere((a) => a.id == updated.id);
+    if (idx != -1) {
+      _artworks[idx] = updated;
+      notifyListeners();
+    }
+  }
+
+  /// Remove an artwork by id.
+  void removeArtwork(String id) {
+    _artworks.removeWhere((a) => a.id == id);
+    notifyListeners();
+  }
 }

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../providers/gallery_provider.dart';
 import '../../models/artwork.dart';
 import '../../widgets/show_custom_dialog.dart';
+import '../../widgets/gradient_text.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -54,7 +55,6 @@ class _UploadScreenState extends State<UploadScreen> {
       _previewDesc = _descController.text;
       _previewImage = _imageFile;
     });
-    // No confirmation dialog for preview update as per user request
   }
 
   void _submitArtwork(BuildContext context) {
@@ -79,10 +79,7 @@ class _UploadScreenState extends State<UploadScreen> {
       createdAt: DateTime.now(),
     );
     gallery.uploadArtwork(artwork);
-    showCustomDialog(
-      context: context,
-      message: 'Artwork uploaded!',
-    );
+    showCustomDialog(context: context, message: 'Artwork uploaded!');
     setState(() {
       _previewTitle = null;
       _previewDesc = null;
@@ -97,140 +94,175 @@ class _UploadScreenState extends State<UploadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Upload Artwork')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[400]!),
+      appBar: AppBar(title: const GradientText(text: 'Upload Artwork')),
+      body: Container(
+        decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage('assets/images/background02.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+          ),
+          color: Colors.white.withOpacity(0.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[400]!),
+                  ),
+                  child:
+                      (kIsWeb
+                          ? (_webImageUrl == null || _webImageUrl!.isEmpty)
+                          : _imageFile == null)
+                      ? const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_a_photo,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Tap to upload artwork image',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        )
+                      : Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            if (kIsWeb &&
+                                _webImageUrl != null &&
+                                _webImageUrl!.isNotEmpty)
+                              Image.network(_webImageUrl!, fit: BoxFit.cover)
+                            else if (!kIsWeb && _imageFile != null)
+                              Image.file(_imageFile!, fit: BoxFit.cover),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                color: Colors.black54,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
+                                child: const Text(
+                                  'Tap to change image',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
-                child: (kIsWeb
-                        ? (_webImageUrl == null || _webImageUrl!.isEmpty)
-                        : _imageFile == null)
-                    ? const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              const SizedBox(height: 16),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(labelText: 'Title'),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Enter a title' : null,
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Enter a description' : null,
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _isUploading ? null : _updatePreview,
+                      icon: const Icon(Icons.visibility),
+                      label: Text(
+                        _isUploading ? 'Updating Preview...' : 'Update Preview',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (((kIsWeb &&
+                          _webImageUrl != null &&
+                          _webImageUrl!.isNotEmpty) ||
+                      (!kIsWeb && _previewImage != null)) &&
+                  _previewTitle != null &&
+                  _previewDesc != null)
+                Column(
+                  children: [
+                    Card(
+                      elevation: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.add_a_photo, size: 48, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text('Tap to upload artwork image',
-                              style: TextStyle(color: Colors.grey)),
-                        ],
-                      )
-                    : Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (kIsWeb &&
-                              _webImageUrl != null &&
-                              _webImageUrl!.isNotEmpty)
-                            Image.network(_webImageUrl!, fit: BoxFit.cover)
-                          else if (!kIsWeb && _imageFile != null)
-                            Image.file(_imageFile!, fit: BoxFit.cover),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              color: Colors.black54,
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: const Text('Tap to change image',
-                                  style: TextStyle(color: Colors.white)),
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(8),
+                            ),
+                            child:
+                                kIsWeb &&
+                                    _webImageUrl != null &&
+                                    _webImageUrl!.isNotEmpty
+                                ? Image.network(
+                                    _webImageUrl!,
+                                    height: 180,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  )
+                                : (!kIsWeb && _previewImage != null)
+                                ? Image.file(
+                                    _previewImage!,
+                                    height: 180,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _previewTitle!,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _previewDesc!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Enter a title' : null,
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Enter a description' : null,
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _isUploading ? null : _updatePreview,
-                    icon: const Icon(Icons.visibility),
-                    label: Text(_isUploading
-                        ? 'Updating Preview...'
-                        : 'Update Preview'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            if (((kIsWeb && _webImageUrl != null && _webImageUrl!.isNotEmpty) ||
-                    (!kIsWeb && _previewImage != null)) &&
-                _previewTitle != null &&
-                _previewDesc != null)
-              Column(
-                children: [
-                  Card(
-                    elevation: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(8)),
-                          child: kIsWeb &&
-                                  _webImageUrl != null &&
-                                  _webImageUrl!.isNotEmpty
-                              ? Image.network(_webImageUrl!,
-                                  height: 180,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover)
-                              : (!kIsWeb && _previewImage != null)
-                                  ? Image.file(_previewImage!,
-                                      height: 180,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover)
-                                  : const SizedBox.shrink(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_previewTitle!,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: 4),
-                              Text(_previewDesc!,
-                                  style:
-                                      Theme.of(context).textTheme.bodyMedium),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _submitArtwork(context),
-                    icon: const Icon(Icons.cloud_upload),
-                    label: const Text('Submit Artwork'),
-                  ),
-                ],
-              ),
-          ],
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => _submitArtwork(context),
+                      icon: const Icon(Icons.cloud_upload),
+                      label: const Text('Submit Artwork'),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
